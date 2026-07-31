@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Auth\RefreshController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\FuelEntryController;
+use App\Http\Controllers\Api\MaintenanceEventController;
 use App\Http\Controllers\Api\VehicleController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
@@ -52,4 +53,9 @@ Route::middleware(['auth:api', 'csrf.double-submit'])->group(function (): void {
     Route::get('/fuel-entries/{fuelEntry}', [FuelEntryController::class, 'show'])->name('api.fuel-entries.show');
     Route::patch('/fuel-entries/{fuelEntry}', [FuelEntryController::class, 'update'])->name('api.fuel-entries.update');
     Route::delete('/fuel-entries/{fuelEntry}', [FuelEntryController::class, 'destroy'])->name('api.fuel-entries.destroy');
+    Route::get('/vehicles/{vehicle}/maintenance-events', [MaintenanceEventController::class, 'index'])->name('api.vehicles.maintenance-events.index');
+    Route::post('/vehicles/{vehicle}/maintenance-events', [MaintenanceEventController::class, 'store'])->name('api.vehicles.maintenance-events.store');
+    Route::get('/maintenance-events/{maintenanceEvent}', [MaintenanceEventController::class, 'show'])->name('api.maintenance-events.show');
+    Route::patch('/maintenance-events/{maintenanceEvent}', [MaintenanceEventController::class, 'update'])->name('api.maintenance-events.update');
+    Route::delete('/maintenance-events/{maintenanceEvent}', [MaintenanceEventController::class, 'destroy'])->name('api.maintenance-events.destroy');
 });

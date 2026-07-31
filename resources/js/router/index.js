@@ -5,6 +5,8 @@ import ForgotPasswordView from '../views/ForgotPasswordView.vue';
 import FuelEntryFormView from '../views/FuelEntryFormView.vue';
 import FuelHistoryView from '../views/FuelHistoryView.vue';
 import LoginView from '../views/LoginView.vue';
+import MaintenanceEventFormView from '../views/MaintenanceEventFormView.vue';
+import MaintenanceHistoryView from '../views/MaintenanceHistoryView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import ResetPasswordView from '../views/ResetPasswordView.vue';
@@ -46,6 +48,24 @@ const routes = [
         path: '/fuel-entries/:fuelEntry/edit',
         name: 'fuel-entries.edit',
         component: FuelEntryFormView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/vehicles/:vehicle/maintenance-events',
+        name: 'maintenance-events.index',
+        component: MaintenanceHistoryView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/vehicles/:vehicle/maintenance-events/new',
+        name: 'maintenance-events.create',
+        component: MaintenanceEventFormView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/maintenance-events/:maintenanceEvent/edit',
+        name: 'maintenance-events.edit',
+        component: MaintenanceEventFormView,
         meta: { requiresAuth: true },
     },
     {

@@ -24,6 +24,10 @@ defineProps({
         type: String,
         default: '',
     },
+    step: {
+        type: [String, Number],
+        default: undefined,
+    },
     required: {
         type: Boolean,
         default: true,
@@ -50,6 +54,7 @@ const emit = defineEmits(['blur', 'update:modelValue']);
             :name="id"
             :placeholder="placeholder || undefined"
             :required="required"
+            :step="step"
             :type="type"
             :value="modelValue"
             class="min-h-11 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-700 focus:ring-4 focus:ring-sky-100"

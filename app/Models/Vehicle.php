@@ -57,6 +57,12 @@ class Vehicle extends Model
         return $this->hasMany(FuelEntry::class);
     }
 
+    /** @return HasMany<MaintenanceEvent, $this> */
+    public function maintenanceEvents(): HasMany
+    {
+        return $this->hasMany(MaintenanceEvent::class);
+    }
+
     /**
      * @param  Builder<Vehicle>  $query
      * @return Builder<Vehicle>
