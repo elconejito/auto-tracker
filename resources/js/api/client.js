@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const AUTH_ENDPOINTS = new Set([
+    '/auth/csrf-cookie',
     '/auth/register',
     '/auth/login',
     '/auth/refresh',
@@ -8,6 +9,9 @@ const AUTH_ENDPOINTS = new Set([
     '/auth/forgot-password',
     '/auth/reset-password',
 ]);
+
+const MUTATING_METHODS = new Set(['post', 'put', 'patch', 'delete']);
+const CSRF_ENDPOINT = '/auth/csrf-cookie';
 
 const apiClient = axios.create({
     baseURL: '/api',
@@ -20,6 +24,7 @@ const apiClient = axios.create({
 });
 
 let refreshPromise = null;
+let csrfPromise = null;
 let authFailureHandler = null;
 let authFailureHandled = false;
 
@@ -32,6 +37,26 @@ function endpointPath(config) {
 
 function isAuthEndpoint(config) {
     return AUTH_ENDPOINTS.has(endpointPath(config));
+}
+
+function requiresCsrf(config) {
+    return MUTATING_METHODS.has((config?.method ?? 'get').toLowerCase())
+        && endpointPath(config) !== CSRF_ENDPOINT
+        && config?._csrfBootstrap !== true;
+}
+
+async function performCsrfBootstrap() {
+    return apiClient.get(CSRF_ENDPOINT, { _csrfBootstrap: true });
+}
+
+export function ensureCsrfToken() {
+    if (!csrfPromise) {
+        csrfPromise = performCsrfBootstrap().finally(() => {
+            csrfPromise = null;
+        });
+    }
+
+    return csrfPromise;
 }
 
 async function performRefresh() {
@@ -72,6 +97,14 @@ async function notifyAuthFailure() {
     }
 }
 
+apiClient.interceptors.request.use(async (config) => {
+    if (requiresCsrf(config)) {
+        await ensureCsrfToken();
+    }
+
+    return config;
+});
+
 apiClient.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -92,7 +125,9 @@ apiClient.interceptors.response.use(
 
             return apiClient(request);
         } catch (refreshError) {
-            await notifyAuthFailure();
+            if ([401, 403].includes(refreshError.response?.status)) {
+                await notifyAuthFailure();
+            }
 
             return Promise.reject(refreshError);
         }

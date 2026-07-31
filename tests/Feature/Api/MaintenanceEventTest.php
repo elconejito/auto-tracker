@@ -89,6 +89,28 @@ class MaintenanceEventTest extends TestCase
         $this->actingAs($owner, 'api')->withCsrf()->patchJson("/api/maintenance-events/{$event->getKey()}", ['notes' => 'No'])->assertForbidden();
     }
 
+    public function test_history_query_allowlists_filters_sorts_and_pagination(): void
+    {
+        [$user, $vehicle] = $this->ownedVehicle();
+        $this->createEvent($user, $vehicle);
+
+        $this->actingAs($user, 'api')->getJson(
+            "/api/vehicles/{$vehicle->getKey()}/maintenance-events?filter[service_type]=oil_change&sort=-odometer&page[size]=1",
+        )->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('meta.pagination.per_page', 1);
+
+        $this->actingAs($user, 'api')->getJson(
+            "/api/vehicles/{$vehicle->getKey()}/maintenance-events?filter[service_type]=not_real",
+        )->assertUnprocessable()->assertJsonPath('errors.0.source.pointer', '/data/attributes/filter/service_type');
+
+        $this->actingAs($user, 'api')->getJson(
+            "/api/vehicles/{$vehicle->getKey()}/maintenance-events?sort=not_real",
+        )->assertBadRequest();
+
+        $this->actingAs($user, 'api')->getJson(
+            "/api/vehicles/{$vehicle->getKey()}/maintenance-events?page[size]=101",
+        )->assertUnprocessable();
+    }
+
     private function createEvent(User $user, Vehicle $vehicle): MaintenanceEvent
     {
         $response = $this->actingAs($user, 'api')->withCsrf()->postJson(
