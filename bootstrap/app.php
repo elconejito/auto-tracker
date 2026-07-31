@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\VerifyDoubleSubmitCsrfToken;
 use App\Http\Responses\ApiErrorResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,7 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->encryptCookies(except: [
+            'autotracker_access_token',
+            'XSRF-TOKEN',
+        ]);
+
+        $middleware->alias([
+            'csrf.double-submit' => VerifyDoubleSubmitCsrfToken::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
@@ -32,6 +40,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->respond(function (Response $response): Response {
             if (! request()->is('api/*')) {
+                return $response;
+            }
+
+            if ($response->getStatusCode() < Response::HTTP_BAD_REQUEST) {
                 return $response;
             }
 
