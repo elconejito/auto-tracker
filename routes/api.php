@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Auth\LogoutController;
 use App\Http\Controllers\Api\Auth\RefreshController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\VehicleController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 
@@ -39,4 +40,10 @@ Route::prefix('auth')->group(function (): void {
     Route::get('/user', CurrentUserController::class)
         ->middleware('auth:api')
         ->name('api.auth.user');
+});
+
+Route::middleware(['auth:api', 'csrf.double-submit'])->group(function (): void {
+    Route::apiResource('vehicles', VehicleController::class)->except('destroy');
+    Route::post('/vehicles/{vehicle}/archive', [VehicleController::class, 'archive'])->name('api.vehicles.archive');
+    Route::post('/vehicles/{vehicle}/restore', [VehicleController::class, 'restore'])->name('api.vehicles.restore');
 });

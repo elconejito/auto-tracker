@@ -9,7 +9,7 @@ import { useAuthStore } from '../stores/auth';
 window.scrollTo = vi.fn();
 
 describe('application shell', () => {
-    it('renders the foundation route', async () => {
+    it('renders the vehicle route without a false empty state while loading', async () => {
         const pinia = createPinia();
         const auth = useAuthStore(pinia);
         auth.status = 'authenticated';
@@ -25,6 +25,8 @@ describe('application shell', () => {
             },
         });
 
-        expect(wrapper.get('h1').text()).toContain('Trustworthy vehicle records');
+        expect(wrapper.get('h1').text()).toBe('Vehicles');
+        expect(wrapper.text()).toContain('Loading vehicles');
+        expect(wrapper.text()).not.toContain('Your garage is ready');
     });
 });

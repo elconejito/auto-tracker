@@ -1,18 +1,31 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import { useAuthStore } from '../stores/auth';
-import FoundationView from '../views/FoundationView.vue';
 import ForgotPasswordView from '../views/ForgotPasswordView.vue';
 import LoginView from '../views/LoginView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import ResetPasswordView from '../views/ResetPasswordView.vue';
+import VehicleFormView from '../views/VehicleFormView.vue';
+import VehiclesView from '../views/VehiclesView.vue';
 
 const routes = [
     {
         path: '/',
-        name: 'foundation',
-        component: FoundationView,
+        name: 'vehicles',
+        component: VehiclesView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/vehicles/new',
+        name: 'vehicles.create',
+        component: VehicleFormView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/vehicles/:vehicle/edit',
+        name: 'vehicles.edit',
+        component: VehicleFormView,
         meta: { requiresAuth: true },
     },
     {
