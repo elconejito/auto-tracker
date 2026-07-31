@@ -130,6 +130,7 @@ onMounted(loadVehicles);
 
                 <p v-if="errorMessage" class="text-sm text-red-700" role="alert">{{ errorMessage }}</p>
                 <div class="flex flex-wrap gap-2 border-t border-slate-200 pt-4">
+                    <RouterLink class="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${vehicle.id}`">Dashboard</RouterLink>
                     <RouterLink class="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${vehicle.id}/fuel-entries`">Fuel history</RouterLink>
                     <RouterLink class="inline-flex min-h-11 items-center rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${vehicle.id}/maintenance-events`">Maintenance history</RouterLink>
                     <RouterLink v-if="!attributes(vehicle).archived_at" class="inline-flex min-h-11 items-center rounded-lg border border-sky-200 px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${vehicle.id}/fuel-entries/new`">Add fuel</RouterLink>

@@ -10,6 +10,7 @@ import MaintenanceHistoryView from '../views/MaintenanceHistoryView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import ResetPasswordView from '../views/ResetPasswordView.vue';
+import DashboardView from '../views/DashboardView.vue';
 import VehicleFormView from '../views/VehicleFormView.vue';
 import VehiclesView from '../views/VehiclesView.vue';
 
@@ -24,6 +25,12 @@ const routes = [
         path: '/vehicles/new',
         name: 'vehicles.create',
         component: VehicleFormView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/vehicles/:vehicle',
+        name: 'vehicles.dashboard',
+        component: DashboardView,
         meta: { requiresAuth: true },
     },
     {

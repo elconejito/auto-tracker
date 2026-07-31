@@ -10,6 +10,8 @@ class GenericService extends AbstractService
 
     protected static string $serviceRecencyGroup = 'generic';
 
+    protected static bool $serviceSupportsMileageSince = false;
+
     /** @var list<string> */
     protected $fillable = ['name', 'description'];
 }
