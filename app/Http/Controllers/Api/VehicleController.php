@@ -18,7 +18,7 @@ final class VehicleController extends Controller
 {
     public function index(IndexVehicleRequest $request): JsonResponse
     {
-        $vehicles = QueryBuilder::for(Vehicle::query()->whereBelongsTo($request->user()))
+        $vehicles = QueryBuilder::for(Vehicle::query()->withFuelSummaries()->whereBelongsTo($request->user()))
             ->allowedFilters(
                 AllowedFilter::callback('archived', function ($query, mixed $value): void {
                     match ($value) {
@@ -55,6 +55,7 @@ final class VehicleController extends Controller
     public function show(Vehicle $vehicle): JsonResponse
     {
         Gate::authorize('view', $vehicle);
+        $vehicle = Vehicle::query()->withFuelSummaries()->findOrFail($vehicle->getKey());
 
         return $this->respondWithItem($vehicle, new VehicleTransformer);
     }

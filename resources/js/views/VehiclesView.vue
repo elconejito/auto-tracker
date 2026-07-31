@@ -19,6 +19,20 @@ function formatOdometer(value) {
     return Number(value).toLocaleString('en-US');
 }
 
+function formatMpg(value) {
+    return value === null || value === undefined || value === '' ? 'Unavailable' : `${Number(value).toLocaleString('en-US', { maximumFractionDigits: 1 })} MPG`;
+}
+
+function formatDate(value) {
+    if (!value) {
+        return 'Unavailable';
+    }
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime()) ? 'Unavailable' : date.toLocaleDateString('en-US', { dateStyle: 'medium' });
+}
+
 async function loadVehicles() {
     status.value = 'loading';
     errorMessage.value = '';
@@ -109,12 +123,15 @@ onMounted(loadVehicles);
                 </div>
 
                 <dl class="grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-4 text-sm">
-                    <div><dt class="text-slate-500">Latest MPG</dt><dd class="mt-1 font-medium text-slate-700">Unavailable</dd></div>
-                    <div><dt class="text-slate-500">Recent service</dt><dd class="mt-1 font-medium text-slate-700">Unavailable</dd></div>
+                    <div><dt class="text-slate-500">Latest MPG</dt><dd class="mt-1 font-medium text-slate-700">{{ formatMpg(attributes(vehicle).latest_mpg) }}</dd></div>
+                    <div><dt class="text-slate-500">Average MPG</dt><dd class="mt-1 font-medium text-slate-700">{{ formatMpg(attributes(vehicle).average_mpg) }}</dd></div>
+                    <div class="col-span-2"><dt class="text-slate-500">Most recent fill-up</dt><dd class="mt-1 font-medium text-slate-700">{{ formatDate(attributes(vehicle).most_recent_fueled_at) }}</dd></div>
                 </dl>
 
                 <p v-if="errorMessage" class="text-sm text-red-700" role="alert">{{ errorMessage }}</p>
                 <div class="flex flex-wrap gap-2 border-t border-slate-200 pt-4">
+                    <RouterLink class="inline-flex min-h-11 items-center rounded-lg bg-sky-700 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${vehicle.id}/fuel-entries`">Fuel history</RouterLink>
+                    <RouterLink v-if="!attributes(vehicle).archived_at" class="inline-flex min-h-11 items-center rounded-lg border border-sky-200 px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${vehicle.id}/fuel-entries/new`">Add fuel</RouterLink>
                     <RouterLink v-if="!attributes(vehicle).archived_at" class="inline-flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-semibold text-sky-800 hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${vehicle.id}/edit`">Edit</RouterLink>
                     <button :disabled="pendingVehicleId === vehicle.id" class="min-h-11 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700 disabled:opacity-50" type="button" @click="toggleArchived(vehicle)">{{ attributes(vehicle).archived_at ? 'Restore' : 'Archive' }}</button>
                 </div>

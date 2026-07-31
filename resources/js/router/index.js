@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import { useAuthStore } from '../stores/auth';
 import ForgotPasswordView from '../views/ForgotPasswordView.vue';
+import FuelEntryFormView from '../views/FuelEntryFormView.vue';
+import FuelHistoryView from '../views/FuelHistoryView.vue';
 import LoginView from '../views/LoginView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import RegisterView from '../views/RegisterView.vue';
@@ -26,6 +28,24 @@ const routes = [
         path: '/vehicles/:vehicle/edit',
         name: 'vehicles.edit',
         component: VehicleFormView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/vehicles/:vehicle/fuel-entries',
+        name: 'fuel-entries.index',
+        component: FuelHistoryView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/vehicles/:vehicle/fuel-entries/new',
+        name: 'fuel-entries.create',
+        component: FuelEntryFormView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/fuel-entries/:fuelEntry/edit',
+        name: 'fuel-entries.edit',
+        component: FuelEntryFormView,
         meta: { requiresAuth: true },
     },
     {

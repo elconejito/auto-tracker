@@ -8,7 +8,7 @@ use League\Fractal\TransformerAbstract;
 final class VehicleTransformer extends TransformerAbstract
 {
     /**
-     * @return array{id: string, type: string, attributes: array{nickname: string, year: int, make: string, model: string, trim: string|null, vin: string|null, license_plate: string|null, current_odometer: int, archived_at: string|null, created_at: string|null, updated_at: string|null}}
+     * @return array{id: string, type: string, attributes: array<string, mixed>}
      */
     public function transform(Vehicle $vehicle): array
     {
@@ -24,6 +24,9 @@ final class VehicleTransformer extends TransformerAbstract
                 'vin' => $vehicle->vin,
                 'license_plate' => $vehicle->license_plate,
                 'current_odometer' => $vehicle->current_odometer,
+                'latest_mpg' => $vehicle->getAttribute('latest_mpg'),
+                'average_mpg' => $vehicle->getAttribute('average_mpg'),
+                'most_recent_fueled_at' => $vehicle->getAttribute('most_recent_fueled_at')?->toAtomString(),
                 'archived_at' => $vehicle->archived_at?->toAtomString(),
                 'created_at' => $vehicle->created_at?->toAtomString(),
                 'updated_at' => $vehicle->updated_at?->toAtomString(),

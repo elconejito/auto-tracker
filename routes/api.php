@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Auth\LogoutController;
 use App\Http\Controllers\Api\Auth\RefreshController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\FuelEntryController;
 use App\Http\Controllers\Api\VehicleController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
@@ -46,4 +47,9 @@ Route::middleware(['auth:api', 'csrf.double-submit'])->group(function (): void {
     Route::apiResource('vehicles', VehicleController::class)->except('destroy');
     Route::post('/vehicles/{vehicle}/archive', [VehicleController::class, 'archive'])->name('api.vehicles.archive');
     Route::post('/vehicles/{vehicle}/restore', [VehicleController::class, 'restore'])->name('api.vehicles.restore');
+    Route::get('/vehicles/{vehicle}/fuel-entries', [FuelEntryController::class, 'index'])->name('api.vehicles.fuel-entries.index');
+    Route::post('/vehicles/{vehicle}/fuel-entries', [FuelEntryController::class, 'store'])->name('api.vehicles.fuel-entries.store');
+    Route::get('/fuel-entries/{fuelEntry}', [FuelEntryController::class, 'show'])->name('api.fuel-entries.show');
+    Route::patch('/fuel-entries/{fuelEntry}', [FuelEntryController::class, 'update'])->name('api.fuel-entries.update');
+    Route::delete('/fuel-entries/{fuelEntry}', [FuelEntryController::class, 'destroy'])->name('api.fuel-entries.destroy');
 });
