@@ -122,7 +122,10 @@ onMounted(load);
                 <h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{{ vehicleAttributes.nickname || 'Fuel history' }}</h1>
                 <p class="mt-2 max-w-2xl text-base leading-7 text-slate-600">Full fill-ups, odometer readings, and calculated fuel economy in chronological context.</p>
             </div>
-            <RouterLink v-if="!isArchived" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${route.params.vehicle}/fuel-entries/new`">Add fuel</RouterLink>
+            <div v-if="!isArchived" class="flex flex-wrap gap-3">
+                <RouterLink class="inline-flex min-h-11 items-center justify-center rounded-lg border border-sky-200 px-4 py-2.5 text-sm font-semibold text-sky-800 hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${route.params.vehicle}/fuel-entries/import`">Import CSV</RouterLink>
+                <RouterLink class="inline-flex min-h-11 items-center justify-center rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${route.params.vehicle}/fuel-entries/new`">Add fuel</RouterLink>
+            </div>
         </div>
 
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">

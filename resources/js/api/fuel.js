@@ -27,3 +27,11 @@ export async function updateFuelEntry(id, attributes) {
 export async function deleteFuelEntry(id) {
     await apiClient.delete(`/fuel-entries/${id}`);
 }
+
+export async function importFuelEntries(vehicleId, file) {
+    const data = new FormData();
+    data.append('file', file);
+    const response = await apiClient.post(`/vehicles/${vehicleId}/fuel-imports`, data);
+
+    return response.data.data;
+}

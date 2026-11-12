@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Auth\RefreshController;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\FuelEntryController;
+use App\Http\Controllers\Api\FuelImportController;
 use App\Http\Controllers\Api\MaintenanceEventController;
 use App\Http\Controllers\Api\VehicleController;
 use App\Http\Controllers\Api\VehicleDashboardController;
@@ -53,6 +54,7 @@ Route::middleware(['auth:api', 'csrf.double-submit'])->group(function (): void {
     Route::get('/vehicles/{vehicle}/dashboard', VehicleDashboardController::class)->name('api.vehicles.dashboard');
     Route::get('/vehicles/{vehicle}/timeline', VehicleTimelineController::class)->name('api.vehicles.timeline');
     Route::get('/vehicles/{vehicle}/fuel-entries', [FuelEntryController::class, 'index'])->name('api.vehicles.fuel-entries.index');
+    Route::post('/vehicles/{vehicle}/fuel-imports', FuelImportController::class)->name('api.vehicles.fuel-imports.store');
     Route::post('/vehicles/{vehicle}/fuel-entries', [FuelEntryController::class, 'store'])->name('api.vehicles.fuel-entries.store');
     Route::get('/fuel-entries/{fuelEntry}', [FuelEntryController::class, 'show'])->name('api.fuel-entries.show');
     Route::patch('/fuel-entries/{fuelEntry}', [FuelEntryController::class, 'update'])->name('api.fuel-entries.update');

@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/auth';
 import ForgotPasswordView from '../views/ForgotPasswordView.vue';
 import FuelEntryFormView from '../views/FuelEntryFormView.vue';
 import FuelHistoryView from '../views/FuelHistoryView.vue';
+import FuelImportView from '../views/FuelImportView.vue';
 import LoginView from '../views/LoginView.vue';
 import MaintenanceEventFormView from '../views/MaintenanceEventFormView.vue';
 import MaintenanceHistoryView from '../views/MaintenanceHistoryView.vue';
@@ -43,6 +44,12 @@ const routes = [
         path: '/vehicles/:vehicle/fuel-entries',
         name: 'fuel-entries.index',
         component: FuelHistoryView,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/vehicles/:vehicle/fuel-entries/import',
+        name: 'fuel-entries.import',
+        component: FuelImportView,
         meta: { requiresAuth: true },
     },
     {
