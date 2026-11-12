@@ -39,6 +39,30 @@ class FuelImportTest extends TestCase
         $this->assertSame(0, $other->fuelEntries()->count());
     }
 
+    #[DataProvider('wholeNumberOdometers')]
+    public function test_whole_number_decimal_odometers_are_imported_as_integers(string $odometer, int $expected): void
+    {
+        $vehicle = Vehicle::factory()->create(['current_odometer' => 0]);
+        $csv = "model,odometer,gallons,price,fuelup_date\nLegacy,{$odometer},10,3.5,2025-01-01\n";
+
+        $this->actingAs($vehicle->user, 'api')->withCsrf()->postJson("/api/vehicles/{$vehicle->id}/fuel-imports", [
+            'file' => UploadedFile::fake()->createWithContent('history.csv', $csv),
+        ])->assertOk()->assertJsonPath('data.status', 'success')->assertJsonPath('data.imported', 1);
+
+        $this->assertSame($expected, $vehicle->fuelEntries()->sole()->odometer);
+        $this->assertSame($expected, $vehicle->fresh()->current_odometer);
+    }
+
+    /** @return array<string, array{string, int}> */
+    public static function wholeNumberOdometers(): array
+    {
+        return [
+            'decimal export' => ['10100.0', 10100],
+            'zero' => ['0.0', 0],
+            'extra zero precision' => ['10100.000', 10100],
+        ];
+    }
+
     #[DataProvider('invalidFiles')]
     public function test_invalid_files_report_failures_and_keep_valid_rows(string $csv, ?int $expectedImported = null): void
     {
@@ -75,6 +99,9 @@ class FuelImportTest extends TestCase
             'missing header' => ["model,odometer,gallons,price\nLegacy,1000,10,3.5\n"],
             'duplicate header' => ["model,odometer,gallons,price,fuelup_date,price\n"],
             'invalid gallons after valid row' => [$header.$valid."Legacy,1300,0,3.5,2025-02-01\n", 1],
+            'fractional odometer' => [$header."Legacy,10100.5,10,3.5,2025-01-01\n", 0],
+            'decimal odometer over limit' => [$header."Legacy,1000000000.0,10,3.5,2025-01-01\n", 0],
+            'negative decimal odometer' => [$header."Legacy,-100.0,10,3.5,2025-01-01\n", 0],
             'negative price' => [$header."Legacy,1000,10,-1,2025-01-01\n", 0],
             'future date' => [$header."Legacy,1000,10,3.5,2099-01-01\n", 0],
             'bad date' => [$header."Legacy,1000,10,3.5,not-a-date\n", 0],
