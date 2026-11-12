@@ -144,7 +144,7 @@ final class ImportFuelEntries
                 $source = array_intersect_key($row, array_flip($required));
                 $values = [
                     'model' => $row['model'],
-                    'odometer' => $row['odometer'],
+                    'odometer' => preg_replace('/\A([0-9]+)\.0+\z/', '$1', $row['odometer']),
                     'gallons' => $row['gallons'],
                     'price_per_gallon' => $row['price'],
                     'fueled_at' => $row['fuelup_date'],
