@@ -6,6 +6,7 @@ import * as vehicleApi from '../api/vehicles';
 import FuelEntryFormView from '../views/FuelEntryFormView.vue';
 import FuelHistoryView from '../views/FuelHistoryView.vue';
 import VehiclesView from '../views/VehiclesView.vue';
+import { toDateInput, formatFuelDate } from '../utils/fuel';
 
 function routerFor(component, path) {
     const router = createRouter({
@@ -43,14 +44,37 @@ describe('fuel tracking experience', () => {
         const wrapper = mount(FuelEntryFormView, { global: { plugins: [router] } });
 
         await flushPromises();
-        await wrapper.get('#fueled_at').setValue('2026-07-31T15:00');
+        await wrapper.get('#fueled_at').setValue('2026-07-31');
         await wrapper.get('#odometer').setValue('24500');
         await wrapper.get('#gallons').setValue('12.5');
         await wrapper.get('form').trigger('submit');
         await flushPromises();
 
-        expect(fuelApi.createFuelEntry).toHaveBeenCalledWith('vehicle-1', expect.objectContaining({ gallons: '12.5', odometer: 24500 }));
+        expect(fuelApi.createFuelEntry).toHaveBeenCalledWith('vehicle-1', expect.objectContaining({ fueled_at: '2026-07-31', gallons: '12.5', odometer: 24500, station: null }));
         expect(wrapper.text()).toContain('The odometer must be greater than zero.');
+    });
+
+    it('uses date-only entry and places the optional station directly before notes', async () => {
+        vi.spyOn(vehicleApi, 'fetchVehicle').mockResolvedValue(activeVehicle);
+        const router = routerFor(FuelEntryFormView, '/vehicles/vehicle-1/fuel-entries/new');
+        await router.isReady();
+        const wrapper = mount(FuelEntryFormView, { global: { plugins: [router] } });
+        await flushPromises();
+
+        expect(wrapper.get('#fueled_at').attributes('type')).toBe('date');
+        expect(wrapper.findAll('input, select, textarea').map((field) => field.attributes('id'))).toEqual([
+            'fueled_at', 'odometer', 'gallons', 'price_per_gallon', 'total_cost', 'fuel_grade', 'station', 'notes',
+        ]);
+        expect(wrapper.get('#station').element.required).toBe(false);
+        expect(wrapper.get('label[for="station"]').text()).toContain('optional');
+    });
+
+    it('preserves the recorded calendar date without timezone shifts', () => {
+        expect(toDateInput('2026-07-31T00:00:00Z')).toBe('2026-07-31');
+        expect(toDateInput('2026-07-31')).toBe('2026-07-31');
+        expect(toDateInput(null)).toBe('');
+        expect(formatFuelDate('2026-07-31T00:00:00Z')).toBe('Jul 31, 2026');
+        expect(formatFuelDate(null)).toBe('Unavailable');
     });
 
     it('keeps loading separate from an empty history state', async () => {
@@ -144,6 +168,7 @@ describe('fuel tracking experience', () => {
         await flushPromises();
 
         expect(editWrapper.get('#odometer').element.value).toBe('24500');
+        expect(editWrapper.get('#fueled_at').element.value).toBe('2026-07-31');
 
         const deleteEntry = vi.spyOn(fuelApi, 'deleteFuelEntry').mockResolvedValue(undefined);
         vi.spyOn(fuelApi, 'fetchFuelEntries').mockResolvedValue({ data: [{ id: 'fuel-1', attributes: { fueled_at: '2026-07-31T15:00:00Z', odometer: 24500, gallons: '12.5' } }] });

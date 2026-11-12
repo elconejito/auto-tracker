@@ -2,7 +2,7 @@
 import { reactive, watch } from 'vue';
 
 import AuthField from '../auth/AuthField.vue';
-import { toAtomDateTime, toDateTimeLocal } from '../../utils/fuel';
+import { toDateInput } from '../../utils/fuel';
 
 const props = defineProps({
     errors: { type: Object, default: () => ({}) },
@@ -27,7 +27,7 @@ const form = reactive({
 watch(
     () => props.initialValue,
     (value) => {
-        form.fueled_at = toDateTimeLocal(value?.fueled_at);
+        form.fueled_at = toDateInput(value?.fueled_at);
         form.odometer = value?.odometer === null || value?.odometer === undefined ? '' : String(value.odometer);
         form.gallons = value?.gallons === null || value?.gallons === undefined ? '' : String(value.gallons);
         form.total_cost = value?.total_cost === null || value?.total_cost === undefined ? '' : String(value.total_cost);
@@ -41,7 +41,7 @@ watch(
 
 function submit() {
     emit('submit', {
-        fueled_at: toAtomDateTime(form.fueled_at),
+        fueled_at: form.fueled_at || null,
         odometer: Number(form.odometer),
         gallons: form.gallons,
         total_cost: form.total_cost || null,
@@ -60,12 +60,11 @@ function submit() {
         </p>
 
         <div class="grid gap-5 sm:grid-cols-2">
-            <AuthField id="fueled_at" v-model="form.fueled_at" :error="errors.fueled_at" label="Date and time" type="datetime-local" autocomplete="off" />
+            <AuthField id="fueled_at" v-model="form.fueled_at" :error="errors.fueled_at" label="Date" type="date" autocomplete="off" />
             <AuthField id="odometer" v-model="form.odometer" :error="errors.odometer" label="Odometer (miles)" type="number" autocomplete="off" />
             <AuthField id="gallons" v-model="form.gallons" :error="errors.gallons" label="Gallons" type="number" autocomplete="off" />
-            <AuthField id="total_cost" v-model="form.total_cost" :error="errors.total_cost" label="Total cost (USD)" type="number" :required="false" autocomplete="off" />
             <AuthField id="price_per_gallon" v-model="form.price_per_gallon" :error="errors.price_per_gallon" label="Price per gallon (USD)" type="number" :required="false" autocomplete="off" />
-            <AuthField id="station" v-model="form.station" :error="errors.station" label="Station" :required="false" autocomplete="organization" />
+            <AuthField id="total_cost" v-model="form.total_cost" :error="errors.total_cost" label="Total cost (USD)" type="number" :required="false" autocomplete="off" />
             <div class="grid gap-2">
                 <label class="text-sm font-medium text-slate-800" for="fuel_grade">Fuel grade</label>
                 <select id="fuel_grade" v-model="form.fuel_grade" :aria-describedby="errors.fuel_grade ? 'fuel_grade-error' : undefined" :aria-invalid="errors.fuel_grade ? 'true' : 'false'" class="min-h-11 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-slate-950 outline-none transition focus:border-sky-700 focus:ring-4 focus:ring-sky-100">
@@ -79,6 +78,7 @@ function submit() {
                 </select>
                 <p v-if="errors.fuel_grade" id="fuel_grade-error" class="text-sm text-red-700" role="alert">{{ errors.fuel_grade }}</p>
             </div>
+            <AuthField id="station" v-model="form.station" :error="errors.station" label="Station (optional)" :required="false" autocomplete="organization" />
             <div class="grid gap-2 sm:col-span-2">
                 <label class="text-sm font-medium text-slate-800" for="notes">Notes <span class="font-normal text-slate-500">(optional)</span></label>
                 <textarea id="notes" v-model="form.notes" :aria-describedby="errors.notes ? 'notes-error' : undefined" :aria-invalid="errors.notes ? 'true' : 'false'" class="min-h-28 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-700 focus:ring-4 focus:ring-sky-100" />

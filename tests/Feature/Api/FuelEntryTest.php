@@ -33,6 +33,16 @@ class FuelEntryTest extends TestCase
             ->assertJsonPath('data.attributes.calculated_mpg', null);
     }
 
+    public function test_fill_up_can_be_recorded_with_only_a_date_and_no_station(): void
+    {
+        [$user, $vehicle] = $this->ownedVehicle();
+
+        $entry = $this->createEntry($user, $vehicle, ['fueled_at' => '2026-01-01']);
+
+        $this->assertSame('2026-01-01', $entry->fueled_at->format('Y-m-d'));
+        $this->assertNull($entry->station);
+    }
+
     public function test_consecutive_entries_calculate_miles_and_mpg(): void
     {
         [$user, $vehicle] = $this->ownedVehicle();
