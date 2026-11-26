@@ -36,7 +36,8 @@ final class MaintenanceEventController extends Controller
                 AllowedFilter::callback('service_type', fn ($query, mixed $value) => $query->whereHas('serviceLines', fn ($lines) => $lines->where('serviceable_type', $value))),
             )
             ->allowedSorts('performed_at', 'odometer', 'total_cost')
-            ->defaultSort('-performed_at', '-id');
+            ->defaultSort('-performed_at')
+            ->orderByDesc('id');
         $paginator = $query->paginate($request->integer('page.size', 15), page: $request->integer('page.number', 1))->withQueryString();
 
         return fractal()->collection($paginator->getCollection(), new MaintenanceEventTransformer)

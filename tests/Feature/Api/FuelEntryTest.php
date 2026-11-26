@@ -191,6 +191,18 @@ class FuelEntryTest extends TestCase
         )->assertBadRequest();
     }
 
+    public function test_calendar_date_filters_can_use_the_display_timezone(): void
+    {
+        [$user, $vehicle] = $this->ownedVehicle();
+        $user->forceFill(['timezone' => 'America/New_York'])->save();
+        $entry = $this->createEntry($user, $vehicle, ['fueled_at' => '2026-11-26']);
+        $url = "/api/vehicles/{$vehicle->getKey()}/fuel-entries?filter[fueled_from]=2026-11-26&filter[fueled_to]=2026-11-26";
+
+        $this->actingAs($user, 'api')->getJson($url)->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson($url.'&date_timezone=UTC')->assertOk()->assertJsonPath('data.0.id', $entry->id);
+        $this->getJson($url.'&date_timezone=invalid')->assertUnprocessable();
+    }
+
     public function test_current_odometer_never_decreases_during_synchronization(): void
     {
         [$user, $vehicle] = $this->ownedVehicle(['current_odometer' => 5000]);

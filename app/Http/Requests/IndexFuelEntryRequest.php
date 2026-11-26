@@ -22,6 +22,7 @@ class IndexFuelEntryRequest extends FormRequest
             'filter' => ['nullable', 'array'],
             'filter.fueled_from' => ['nullable', 'date'],
             'filter.fueled_to' => ['nullable', 'date'],
+            'date_timezone' => ['nullable', 'timezone'],
             'filter.odometer_min' => ['nullable', 'integer', 'min:0'],
             'filter.odometer_max' => ['nullable', 'integer', 'min:0'],
             'filter.mpg_min' => ['nullable', 'numeric', 'min:0'],
