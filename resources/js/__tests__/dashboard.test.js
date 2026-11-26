@@ -4,12 +4,12 @@ import { createMemoryHistory, createRouter } from 'vue-router';
 import * as dashboardApi from '../api/dashboard';
 import DashboardView from '../views/DashboardView.vue';
 
-function routerFor() {
+function routerFor(path = '/vehicles/vehicle-1') {
     const router = createRouter({
         history: createMemoryHistory(),
         routes: [{ path: '/vehicles/:vehicle', component: DashboardView }],
     });
-    router.push('/vehicles/vehicle-1');
+    router.push(path);
 
     return router;
 }
@@ -81,8 +81,35 @@ describe('vehicle dashboard', () => {
         expect(wrapper.text()).toContain('Daily');
         expect(wrapper.text()).toContain('Fuel fill-up');
         expect(wrapper.text()).toContain('Maintenance visit');
+        const activity = wrapper.get('[aria-labelledby="timeline-heading"]');
+        expect(activity.findAll('article')).toHaveLength(2);
+        const links = activity.findAll('h3 a').map((link) => router.resolve(link.attributes('href')));
+        expect(links.map((link) => link.path)).toEqual(['/fuel-entries/fuel-1', '/maintenance-events/maintenance-1']);
+        expect(links.every((link) => link.query.returnTo === '/vehicles/vehicle-1')).toBe(true);
         expect(wrapper.text()).toContain('Shell');
         expect(wrapper.text()).toContain('Oil change');
+    });
+
+    it('restores a timeline page from the URL and keeps an archived dashboard read-only', async () => {
+        vi.spyOn(dashboardApi, 'fetchVehicleDashboard').mockResolvedValue(dashboardResponse({
+            vehicle: { id: 'vehicle-1', nickname: 'Daily', archived_at: '2026-07-01' },
+        }));
+        vi.spyOn(dashboardApi, 'fetchVehicleTimeline').mockResolvedValue({
+            data: [{ id: 'entry', attributes: { kind: 'fuel', title: 'Fuel fill-up', occurred_at: '2026-11-26T00:00:00Z' } }],
+            meta: { pagination: { current_page: 2, total_pages: 2, total: 16 } },
+        });
+        const router = routerFor('/vehicles/vehicle-1?page=2');
+        await router.isReady();
+        const wrapper = mount(DashboardView, { global: { plugins: [router] } });
+        await flushPromises();
+
+        expect(dashboardApi.fetchVehicleTimeline).toHaveBeenCalledWith('vehicle-1', 2);
+        expect(wrapper.text()).toContain('Page 2 of 2');
+        expect(wrapper.text()).toContain('Nov 26, 2026');
+        expect(wrapper.text()).toContain('Archived');
+        expect(wrapper.text()).not.toContain('Add fuel');
+        expect(wrapper.text()).not.toContain('Add maintenance');
+        expect(router.resolve(wrapper.get('h3 a').attributes('href')).query.returnTo).toBe('/vehicles/vehicle-1?page=2');
     });
 
     it('offers retry after dashboard loading fails', async () => {

@@ -40,9 +40,11 @@ watch(
 );
 
 function submit() {
+    const originalDate = props.initialValue.fueled_at;
+    const originalTime = toDateInput(originalDate) ? originalDate.slice(10) : '';
     emit('submit', {
-        fueled_at: form.fueled_at || null,
-        odometer: Number(form.odometer),
+        fueled_at: form.fueled_at ? form.fueled_at + originalTime : null,
+        odometer: form.odometer === '' ? null : Number(form.odometer),
         gallons: form.gallons,
         total_cost: form.total_cost || null,
         price_per_gallon: form.price_per_gallon || null,

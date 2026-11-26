@@ -1,4 +1,4 @@
-import { resourceAttributes } from './fuel';
+import { formatFuelDate, resourceAttributes } from './fuel';
 
 export const SERVICE_TYPES = [
     'oil_change',
@@ -77,15 +77,9 @@ export function serviceSummary(service) {
 }
 
 export function formatMaintenanceDate(value) {
-    if (!value) {
-        return 'Date unavailable';
-    }
+    const date = formatFuelDate(value);
 
-    const date = new Date(value);
-
-    return Number.isNaN(date.getTime())
-        ? 'Date unavailable'
-        : date.toLocaleDateString('en-US', { dateStyle: 'medium' });
+    return date === 'Unavailable' ? 'Date unavailable' : date;
 }
 
 export function formatMaintenanceMoney(value) {

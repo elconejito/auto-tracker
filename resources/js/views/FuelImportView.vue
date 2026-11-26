@@ -2,6 +2,8 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
+import VehicleNav from '../components/VehicleNav.vue';
+import { returnPath } from '../utils/navigation';
 import { messageFrom } from '../api/errors';
 import { importFuelEntries } from '../api/fuel';
 import { fetchVehicle } from '../api/vehicles';
@@ -18,6 +20,8 @@ const uploadInput = ref(null);
 const resultTitle = computed(() => ({ success: 'Success', partial_success: 'Partial success', failure: 'Total failure' })[result.value?.status]);
 const attributes = computed(() => vehicle.value?.attributes ?? {});
 const canImport = computed(() => vehicle.value && !attributes.value.archived_at && !submitting.value);
+
+const historyPath = computed(() => returnPath(route.query.returnTo, `/vehicles/${route.params.vehicle}/fuel-entries`));
 
 async function load() {
     loading.value = true;
@@ -61,7 +65,8 @@ onMounted(load);
 
 <template>
     <section class="mx-auto grid max-w-3xl gap-6 px-4 py-8 sm:px-6 sm:py-12">
-        <RouterLink class="w-fit rounded text-sm font-semibold text-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${route.params.vehicle}/fuel-entries`">Back to fuel history</RouterLink>
+        <VehicleNav v-if="vehicle" :vehicle-id="route.params.vehicle" :nickname="attributes.nickname" :archived="Boolean(attributes.archived_at)" />
+        <RouterLink class="w-fit rounded text-sm font-semibold text-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="historyPath">Back to fuel history</RouterLink>
         <div>
             <h1 class="text-3xl font-semibold tracking-tight text-slate-950">Import fuel fill-ups</h1>
             <p v-if="vehicle" class="mt-2 text-slate-600">Importing into {{ attributes.nickname }} · {{ attributes.year }} {{ attributes.make }} {{ attributes.model }}</p>
@@ -91,7 +96,7 @@ onMounted(load);
                     </tbody>
                 </table>
             </div>
-            <RouterLink class="w-fit rounded-lg px-3 py-2 text-sm font-semibold text-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${route.params.vehicle}/fuel-entries`">View fuel history</RouterLink>
+            <RouterLink class="w-fit rounded-lg px-3 py-2 text-sm font-semibold text-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="historyPath">View fuel history</RouterLink>
         </div>
         <form v-if="vehicle && !attributes.archived_at" class="grid gap-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" :aria-busy="submitting" @submit.prevent="submit">
             <div class="grid gap-3 text-sm leading-6 text-slate-600" id="csv-help">
@@ -104,6 +109,6 @@ onMounted(load);
             </label>
             <button class="min-h-11 w-fit rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700 disabled:cursor-not-allowed disabled:opacity-50" type="submit" :disabled="!file || !canImport">{{ submitting ? 'Importing…' : 'Import fill-ups' }}</button>
         </form>
-        <RouterLink v-if="vehicle && !attributes.archived_at && (result || errorMessage)" class="min-h-11 w-fit rounded-lg border border-sky-200 px-4 py-3 text-sm font-semibold text-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="`/vehicles/${route.params.vehicle}/fuel-entries/new`" target="_blank" rel="noopener">Add missing fill-up manually (opens a new tab)</RouterLink>
+        <RouterLink v-if="vehicle && !attributes.archived_at && (result || errorMessage)" class="min-h-11 w-fit rounded-lg border border-sky-200 px-4 py-3 text-sm font-semibold text-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="{ path: `/vehicles/${route.params.vehicle}/fuel-entries/new`, query: { returnTo: historyPath, garage: route.query.garage } }" target="_blank" rel="noopener">Add missing fill-up manually (opens a new tab)</RouterLink>
     </section>
 </template>

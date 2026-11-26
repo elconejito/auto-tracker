@@ -4,6 +4,7 @@ import { reactive, watch } from 'vue';
 import AuthField from '../auth/AuthField.vue';
 
 const props = defineProps({
+    cancelTo: { type: String, default: '/' },
     errors: { type: Object, default: () => ({}) },
     initialValue: { type: Object, default: () => ({}) },
     isSubmitting: { type: Boolean, default: false },
@@ -37,7 +38,7 @@ function submit() {
     emit('submit', {
         ...form,
         year: Number(form.year),
-        current_odometer: Number(form.current_odometer),
+        current_odometer: form.current_odometer === '' ? null : Number(form.current_odometer),
         trim: form.trim || null,
         vin: form.vin || null,
         license_plate: form.license_plate || null,
@@ -59,7 +60,7 @@ function submit() {
         </div>
 
         <div class="flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
-            <RouterLink class="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" to="/">
+            <RouterLink class="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700" :to="cancelTo">
                 Cancel
             </RouterLink>
             <button :disabled="isSubmitting" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700 disabled:cursor-not-allowed disabled:opacity-60" type="submit">
