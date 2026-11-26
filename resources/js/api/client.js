@@ -5,7 +5,6 @@ const AUTH_ENDPOINTS = new Set([
     '/auth/register',
     '/auth/login',
     '/auth/refresh',
-    '/auth/logout',
     '/auth/forgot-password',
     '/auth/reset-password',
 ]);

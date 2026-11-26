@@ -32,6 +32,25 @@ class PasswordResetTest extends TestCase
             ->assertNoContent(202);
     }
 
+    public function test_reset_link_preserves_the_internal_destination(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+        $destination = '/vehicles/car/fuel-entries?page=2&sort=odometer';
+
+        $this->postWithCsrf('/api/auth/forgot-password', ['email' => $user->email, 'redirect' => $destination])
+            ->assertAccepted();
+
+        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user, $destination): bool {
+            parse_str(parse_url($notification->toMail($user)->actionUrl, PHP_URL_QUERY), $query);
+
+            return $query['redirect'] === $destination && $query['email'] === $user->email;
+        });
+
+        $this->postWithCsrf('/api/auth/forgot-password', ['email' => $user->email, 'redirect' => '//outside.test'])
+            ->assertUnprocessable();
+    }
+
     public function test_user_can_reset_password_with_a_valid_token(): void
     {
         $user = User::factory()->create(['email' => 'driver@example.test']);
