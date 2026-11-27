@@ -78,6 +78,22 @@ describe('authenticated API client', () => {
         expect(second.data.data.path).toBe('/vehicles');
     });
 
+    it('refreshes an expired access token before finishing sign-out', async () => {
+        const calls = [];
+        apiClient.defaults.adapter = vi.fn(async (config) => {
+            calls.push(config.url);
+            if (config.url === '/auth/logout' && !config._authRetry) {
+                throw unauthorized(config);
+            }
+
+            return response(config);
+        });
+
+        await apiClient.post('/auth/logout');
+
+        expect(calls.filter((url) => url !== '/auth/csrf-cookie')).toEqual(['/auth/logout', '/auth/refresh', '/auth/logout']);
+    });
+
     it('bootstraps CSRF once for concurrent mutating requests', async () => {
         const calls = [];
 

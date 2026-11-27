@@ -33,6 +33,16 @@ class FuelEntryTest extends TestCase
             ->assertJsonPath('data.attributes.calculated_mpg', null);
     }
 
+    public function test_fill_up_can_be_recorded_with_only_a_date_and_no_station(): void
+    {
+        [$user, $vehicle] = $this->ownedVehicle();
+
+        $entry = $this->createEntry($user, $vehicle, ['fueled_at' => '2026-01-01']);
+
+        $this->assertSame('2026-01-01', $entry->fueled_at->format('Y-m-d'));
+        $this->assertNull($entry->station);
+    }
+
     public function test_consecutive_entries_calculate_miles_and_mpg(): void
     {
         [$user, $vehicle] = $this->ownedVehicle();
@@ -179,6 +189,18 @@ class FuelEntryTest extends TestCase
         $this->actingAs($user, 'api')->getJson(
             "/api/vehicles/{$vehicle->getKey()}/fuel-entries?sort=unknown",
         )->assertBadRequest();
+    }
+
+    public function test_calendar_date_filters_can_use_the_display_timezone(): void
+    {
+        [$user, $vehicle] = $this->ownedVehicle();
+        $user->forceFill(['timezone' => 'America/New_York'])->save();
+        $entry = $this->createEntry($user, $vehicle, ['fueled_at' => '2026-11-26']);
+        $url = "/api/vehicles/{$vehicle->getKey()}/fuel-entries?filter[fueled_from]=2026-11-26&filter[fueled_to]=2026-11-26";
+
+        $this->actingAs($user, 'api')->getJson($url)->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson($url.'&date_timezone=UTC')->assertOk()->assertJsonPath('data.0.id', $entry->id);
+        $this->getJson($url.'&date_timezone=invalid')->assertUnprocessable();
     }
 
     public function test_current_odometer_never_decreases_during_synchronization(): void

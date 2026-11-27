@@ -2,30 +2,17 @@ export function resourceAttributes(resource) {
     return resource?.attributes ?? resource ?? {};
 }
 
-export function toDateTimeLocal(value) {
-    if (!value) {
-        return '';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return '';
-    }
-
-    const pad = (part) => String(part).padStart(2, '0');
-
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+export function toDateInput(value) {
+    return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(?:T| |$)/.test(value) ? value.slice(0, 10) : '';
 }
 
-export function toAtomDateTime(value) {
-    if (!value) {
-        return null;
-    }
+export function formatFuelDate(value) {
+    const day = toDateInput(value);
+    const date = new Date(`${day}T00:00:00Z`);
 
-    const date = new Date(value);
-
-    return Number.isNaN(date.getTime()) ? value : date.toISOString();
+    return Number.isNaN(date.getTime())
+        ? 'Unavailable'
+        : date.toLocaleDateString('en-US', { dateStyle: 'medium', timeZone: 'UTC' });
 }
 
 export function formatOdometer(value) {

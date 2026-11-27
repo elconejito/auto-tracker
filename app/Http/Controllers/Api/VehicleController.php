@@ -29,7 +29,8 @@ final class VehicleController extends Controller
                 }),
             )
             ->allowedSorts('nickname', 'year', 'make', 'model', 'current_odometer', 'created_at')
-            ->defaultSort('nickname', 'id');
+            ->defaultSort('nickname')
+            ->orderBy('id');
 
         if (! $request->has('filter.archived')) {
             $vehicles->whereNull('archived_at');

@@ -68,7 +68,11 @@ class AppServiceProvider extends ServiceProvider
 
         ResetPassword::createUrlUsing(
             fn (object $notifiable, string $token): string => rtrim((string) config('app.url'), '/')
-                .'/reset-password?token='.$token.'&email='.urlencode($notifiable->getEmailForPasswordReset()),
+                .'/reset-password?'.http_build_query([
+                    'token' => $token,
+                    'email' => $notifiable->getEmailForPasswordReset(),
+                    'redirect' => request()->attributes->get('password_reset_destination'),
+                ]),
         );
     }
 }

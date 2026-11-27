@@ -33,7 +33,7 @@ final class FuelEntryController extends Controller
     public function index(IndexFuelEntryRequest $request, Vehicle $vehicle): JsonResponse
     {
         Gate::authorize('view', $vehicle);
-        $timezone = $request->user()->timezone;
+        $timezone = $request->validated('date_timezone') ?? $request->user()->timezone;
 
         $entries = QueryBuilder::for(FuelEntry::query()->forVehicle($vehicle))
             ->allowedFilters(
@@ -53,7 +53,8 @@ final class FuelEntryController extends Controller
                 AllowedFilter::callback('mpg_max', fn ($query, mixed $value) => $query->whereNotNull('calculated_mpg')->where('calculated_mpg', '<=', $value)),
             )
             ->allowedSorts('fueled_at', 'odometer', 'gallons', 'calculated_mpg', 'total_cost')
-            ->defaultSort('-fueled_at', '-id');
+            ->defaultSort('-fueled_at')
+            ->orderByDesc('id');
 
         $paginator = $entries
             ->paginate($request->integer('page.size', 15), page: $request->integer('page.number', 1))

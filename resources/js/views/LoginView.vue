@@ -1,12 +1,12 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import AuthError from '../components/auth/AuthError.vue';
 import AuthField from '../components/auth/AuthField.vue';
 import AuthLayout from '../components/auth/AuthLayout.vue';
 import { messageFrom, validationErrorsFrom } from '../api/errors';
-import { intendedPath } from '../router';
+import { intendedPath, redirectQuery } from '../router';
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
@@ -16,7 +16,7 @@ const form = reactive({ email: '', password: '' });
 const errors = ref({});
 const formError = ref('');
 const pending = ref(false);
-const resetSuccess = route.query.reset === 'success';
+const resetSuccess = computed(() => route.query.reset === 'success');
 
 async function submit() {
     errors.value = {};
@@ -72,7 +72,7 @@ async function submit() {
             <div class="flex justify-end">
                 <RouterLink
                     class="text-sm font-medium text-sky-800 underline decoration-sky-300 underline-offset-4 hover:text-sky-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-700"
-                    to="/forgot-password"
+                    :to="{ name: 'forgot-password', query: redirectQuery(route.query.redirect) }"
                 >
                     Forgot your password?
                 </RouterLink>
@@ -92,7 +92,7 @@ async function submit() {
             Don't have an account?
             <RouterLink
                 class="font-semibold text-sky-800 underline decoration-sky-300 underline-offset-4 hover:text-sky-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-700"
-                to="/register"
+                :to="{ name: 'register', query: redirectQuery(route.query.redirect) }"
             >
                 Create one
             </RouterLink>

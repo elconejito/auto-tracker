@@ -24,6 +24,7 @@ class ForgotPasswordRequest extends FormRequest
     {
         return [
             'email' => ['required', 'string', 'email:rfc'],
+            'redirect' => ['nullable', 'string', 'max:4096', 'regex:~^/(?!/)[^\\\\[:cntrl:]]*\z~'],
         ];
     }
 }

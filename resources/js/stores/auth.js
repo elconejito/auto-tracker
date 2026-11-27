@@ -101,14 +101,18 @@ export const useAuthStore = defineStore('auth', () => {
     async function logout() {
         try {
             await apiClient.post('/auth/logout');
-        } finally {
-            clearAuth();
-            resetAuthFailureHandling();
+        } catch (error) {
+            if (error.response?.status !== 401) {
+                throw error;
+            }
         }
+
+        clearAuth();
+        resetAuthFailureHandling();
     }
 
-    async function requestPasswordReset(email) {
-        return apiClient.post('/auth/forgot-password', { email });
+    async function requestPasswordReset(email, redirect) {
+        return apiClient.post('/auth/forgot-password', { email, redirect });
     }
 
     async function resetPassword(credentials) {
@@ -121,7 +125,7 @@ export const useAuthStore = defineStore('auth', () => {
 
             const currentRoute = router.currentRoute.value;
 
-            if (currentRoute.name !== 'login') {
+            if (currentRoute.meta.requiresAuth) {
                 await router.replace({
                     name: 'login',
                     query: { redirect: currentRoute.fullPath },

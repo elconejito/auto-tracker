@@ -48,7 +48,7 @@ describe('fuel CSV import', () => {
         await router.push('/vehicles/vehicle-1/fuel-entries');
         const wrapper = mount(FuelHistoryView, { global: { plugins: [router] } });
         await flushPromises();
-        expect(wrapper.findAll('a').find((link) => link.text() === 'Import CSV').attributes('href')).toBe('/vehicles/vehicle-1/fuel-entries/import');
+        expect(wrapper.findAll('a').find((link) => link.text() === 'Import CSV').attributes('href')).toBe('/vehicles/vehicle-1/fuel-entries/import?returnTo=/vehicles/vehicle-1/fuel-entries');
     });
 
     it('shows the selected vehicle and submits its file with pending and success states', async () => {
@@ -100,7 +100,7 @@ describe('fuel CSV import', () => {
         expect(wrapper.get('tbody').text()).toContain('Gallons must be greater than zero.');
         expect(wrapper.text()).toContain('Upload another CSV');
         const manual = wrapper.findAll('a').find((link) => link.text().includes('Add missing fill-up manually'));
-        expect(manual.attributes('href')).toBe('/vehicles/vehicle-1/fuel-entries/new');
+        expect(manual.attributes('href')).toBe('/vehicles/vehicle-1/fuel-entries/new?returnTo=/vehicles/vehicle-1/fuel-entries');
         expect(manual.attributes('target')).toBe('_blank');
         await wrapper.get('form').trigger('submit');
         expect(upload).toHaveBeenCalledTimes(1);

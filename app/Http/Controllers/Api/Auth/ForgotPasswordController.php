@@ -11,6 +11,8 @@ final class ForgotPasswordController extends Controller
 {
     public function __invoke(ForgotPasswordRequest $request): Response
     {
+        request()->attributes->set('password_reset_destination', $request->validated('redirect'));
+
         Password::sendResetLink($request->safe()->only('email'));
 
         return response()->noContent(202);

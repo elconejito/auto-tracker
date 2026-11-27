@@ -86,8 +86,10 @@ function removeService(index) {
 
 function submit() {
     emit('submit', {
-        performed_at: form.performed_at || null,
-        odometer: Number(form.odometer),
+        performed_at: form.performed_at && form.performed_at === toDateInput(resourceAttributes(props.initialValue).performed_at)
+            ? resourceAttributes(props.initialValue).performed_at
+            : form.performed_at || null,
+        odometer: form.odometer === '' ? null : Number(form.odometer),
         provider: form.provider || null,
         total_cost: form.total_cost || null,
         notes: form.notes || null,

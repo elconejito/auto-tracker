@@ -6,7 +6,7 @@ import AuthError from '../components/auth/AuthError.vue';
 import AuthField from '../components/auth/AuthField.vue';
 import AuthLayout from '../components/auth/AuthLayout.vue';
 import { messageFrom, validationErrorsFrom } from '../api/errors';
-import { intendedPath } from '../router';
+import { intendedPath, redirectQuery } from '../router';
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
@@ -89,7 +89,7 @@ async function submit() {
             Already have an account?
             <RouterLink
                 class="font-semibold text-sky-800 underline decoration-sky-300 underline-offset-4 hover:text-sky-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-700"
-                to="/login"
+                :to="{ name: 'login', query: redirectQuery(route.query.redirect) }"
             >
                 Sign in
             </RouterLink>
